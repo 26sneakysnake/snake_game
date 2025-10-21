@@ -47,10 +47,10 @@ class Snake {
         this.color = color || this.randomColor();
         this.headColor = this.brightenColor(this.color);
 
-        // Initialiser les segments
+        // Initialiser les segments avec un espacement suffisant
         for (let i = 0; i < CONFIG.INITIAL_LENGTH; i++) {
             this.segments.push(new SnakeSegment(
-                x - i * CONFIG.SNAKE_RADIUS,
+                x - i * CONFIG.SNAKE_RADIUS * 2,
                 y
             ));
         }
@@ -184,7 +184,8 @@ class Snake {
         const head = this.segments[0];
 
         // Vérifier collision avec chaque segment de l'autre serpent
-        const startIndex = otherSnake === this ? 3 : 0; // Éviter de se collisionner avec sa propre tête
+        // Ignorer les 15 premiers segments si c'est soi-même pour éviter les fausses collisions
+        const startIndex = otherSnake === this ? 15 : 0;
 
         for (let i = startIndex; i < otherSnake.segments.length; i++) {
             const segment = otherSnake.segments[i];
@@ -281,14 +282,26 @@ function initGame() {
         '#00FF88'
     );
 
-    // Créer les bots
+    // Créer les bots loin du joueur
     botSnakes = [];
     for (let i = 0; i < CONFIG.BOT_COUNT; i++) {
-        botSnakes.push(new Snake(
-            Math.random() * CONFIG.CANVAS_WIDTH,
-            Math.random() * CONFIG.CANVAS_HEIGHT,
-            false
-        ));
+        let x, y, tooClose;
+
+        // Réessayer jusqu'à trouver une position loin du joueur
+        do {
+            x = Math.random() * CONFIG.CANVAS_WIDTH;
+            y = Math.random() * CONFIG.CANVAS_HEIGHT;
+
+            const distanceToPlayer = Math.hypot(
+                x - CONFIG.CANVAS_WIDTH / 2,
+                y - CONFIG.CANVAS_HEIGHT / 2
+            );
+
+            // Les bots doivent être à au moins 200 pixels du joueur
+            tooClose = distanceToPlayer < 200;
+        } while (tooClose);
+
+        botSnakes.push(new Snake(x, y, false));
     }
 
     // Créer la nourriture
@@ -407,11 +420,27 @@ function gameLoop() {
         // Remplacer les bots morts
         botSnakes = botSnakes.filter(bot => bot.alive);
         while (botSnakes.length < CONFIG.BOT_COUNT) {
-            botSnakes.push(new Snake(
-                Math.random() * CONFIG.CANVAS_WIDTH,
-                Math.random() * CONFIG.CANVAS_HEIGHT,
-                false
-            ));
+            let x, y, tooClose;
+
+            // Réessayer jusqu'à trouver une position loin du joueur
+            do {
+                x = Math.random() * CONFIG.CANVAS_WIDTH;
+                y = Math.random() * CONFIG.CANVAS_HEIGHT;
+
+                if (playerSnake.alive) {
+                    const distanceToPlayer = Math.hypot(
+                        x - playerSnake.segments[0].x,
+                        y - playerSnake.segments[0].y
+                    );
+
+                    // Les bots doivent être à au moins 200 pixels du joueur
+                    tooClose = distanceToPlayer < 200;
+                } else {
+                    tooClose = false;
+                }
+            } while (tooClose);
+
+            botSnakes.push(new Snake(x, y, false));
         }
     }
 
