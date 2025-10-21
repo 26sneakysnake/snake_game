@@ -180,14 +180,12 @@ class Snake {
 
     checkCollisionWithSnake(otherSnake) {
         if (!this.alive || !otherSnake.alive) return false;
+        if (otherSnake === this) return false; // Ne jamais se collisionner avec soi-même
 
         const head = this.segments[0];
 
         // Vérifier collision avec chaque segment de l'autre serpent
-        // Ignorer les 15 premiers segments si c'est soi-même pour éviter les fausses collisions
-        const startIndex = otherSnake === this ? 15 : 0;
-
-        for (let i = startIndex; i < otherSnake.segments.length; i++) {
+        for (let i = 0; i < otherSnake.segments.length; i++) {
             const segment = otherSnake.segments[i];
             const distance = Math.hypot(head.x - segment.x, head.y - segment.y);
 
@@ -359,7 +357,7 @@ function gameLoop() {
             playerSnake.update(mouseX, mouseY);
             checkFoodCollision(playerSnake);
 
-            // Vérifier les collisions avec tous les serpents
+            // Vérifier les collisions avec tous les bots (pas avec soi-même)
             for (let bot of botSnakes) {
                 if (playerSnake.checkCollisionWithSnake(bot)) {
                     playerSnake.die();
@@ -371,17 +369,6 @@ function gameLoop() {
                     }, 100);
                     break;
                 }
-            }
-
-            // Vérifier collision avec soi-même
-            if (playerSnake.alive && playerSnake.checkCollisionWithSnake(playerSnake)) {
-                playerSnake.die();
-                setTimeout(() => {
-                    alert(`Game Over! Score final: ${score}`);
-                    initGame();
-                    gameStarted = false;
-                    document.getElementById('instructions').classList.remove('hidden');
-                }, 100);
             }
         }
 
@@ -408,11 +395,6 @@ function gameLoop() {
                             break;
                         }
                     }
-                }
-
-                // Vérifier collision avec soi-même
-                if (bot.alive && bot.checkCollisionWithSnake(bot)) {
-                    bot.die();
                 }
             }
         }

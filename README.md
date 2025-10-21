@@ -16,12 +16,13 @@ Un clone du jeu Slither.io créé en HTML5, CSS3 et JavaScript vanilla.
 1. Ouvrez le fichier `index.html` dans votre navigateur web
 2. Déplacez votre souris pour contrôler votre serpent
 3. Mangez la nourriture colorée pour grandir
-4. Évitez de percuter les autres serpents et vous-même
+4. Évitez de percuter les autres serpents
 5. Essayez d'obtenir le meilleur score possible!
 
 ## Règles
 
 - Mangez de la nourriture pour augmenter votre longueur (+1 point par nourriture)
+- Vous pouvez repasser sur votre propre corps sans danger
 - Si vous percutez un autre serpent, vous perdez
 - Si un bot percute votre serpent, il meurt et vous gagnez +5 points
 - Les bots se régénèrent automatiquement
